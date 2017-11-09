@@ -1,0 +1,37 @@
+---------------------------------------------------------------------------------
+-- 
+-- Arcade: Pooyan port to MiSTer by Sorgelig
+-- 09 November 2017
+-- 
+---------------------------------------------------------------------------------
+-- Pooyan by Dar (darfpga@aol.fr) (08/11/2017)
+-- http://darfpga.blogspot.fr
+---------------------------------------------------------------------------------
+-- gen_ram.vhd & io_ps2_keyboard
+-------------------------------- 
+-- Copyright 2005-2008 by Peter Wendrich (pwsoft@syntiac.com)
+-- http://www.syntiac.com/fpga64.html
+---------------------------------------------------------------------------------
+-- T80/T80se - Version : 0247
+-----------------------------
+-- Z80 compatible microprocessor core
+-- Copyright (c) 2001-2002 Daniel Wallner (jesus@opencores.org)
+---------------------------------------------------------------------------------
+-- YM2149 (AY-3-8910)
+-- Copyright (c) MikeJ - Jan 2005
+---------------------------------------------------------------------------------
+-- 
+-- Support screen and controls rotation on HDMI output.
+-- Only controls are rotated on VGA output.
+-- 
+-- 
+-- Keyboard inputs :
+--
+--   F2          : Coin + Start 2 players
+--   F1          : Coin + Start 1 player
+--   SPACE,CTRL  : Fire
+--   UP,DOWN,LEFT,RIGHT arrows : Movements
+--
+-- Joystick support.
+-- 
+---------------------------------------------------------------------------------
