@@ -128,7 +128,7 @@ localparam CONF_STR = {
 	"O2,Orientation,Vert,Horz;",
 	"-;",
 	"T6,Reset;",
-	"J,Start 1P,Start 2P;",
+	"J,Fire,Start 1P,Start 2P;",
 	"V,v1.00.",`BUILD_DATE
 };
 
