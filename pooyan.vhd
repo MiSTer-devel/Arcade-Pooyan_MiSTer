@@ -75,7 +75,11 @@ port(
  clock_12     : in std_logic;
  clock_14     : in std_logic;
  reset        : in std_logic;
--- tv15Khz_mode : in std_logic;
+
+ dn_addr        : in  std_logic_vector(15 downto 0);
+ dn_data        : in  std_logic_vector(7 downto 0);
+ dn_wr          : in  std_logic;
+
  video_r        : out std_logic_vector(2 downto 0);
  video_g        : out std_logic_vector(2 downto 0);
  video_b        : out std_logic_vector(1 downto 0);
@@ -207,6 +211,8 @@ architecture struct of pooyan is
  signal input_0       : std_logic_vector(7 downto 0);
  signal input_1       : std_logic_vector(7 downto 0);
  signal input_2       : std_logic_vector(7 downto 0);
+
+ signal romp_cs,romsp1_cs,romsp2_cs,romch1_cs,romch2_cs : std_logic;
 
 begin
 
@@ -678,12 +684,24 @@ port map(
   DO      => cpu_do
 );
 
+romp_cs   <= not dn_addr(15);
+romch1_cs <= '1' when dn_addr(15 downto 12) = X"8" else '0';
+romch2_cs <= '1' when dn_addr(15 downto 12) = X"9" else '0';
+romsp1_cs <= '1' when dn_addr(15 downto 12) = X"A" else '0';
+romsp2_cs <= '1' when dn_addr(15 downto 12) = X"B" else '0';
+
 -- cpu1 program ROM
-rom_cpu1 : entity work.pooyan_prog
-port map(
- clk  => clock_6n,
- addr => cpu_addr(14 downto 0),
- data => cpu_rom_do
+rom_cpu1 : work.dpram generic map (15,8)
+port map
+(
+	clock_a   => clock_12,
+	wren_a    => dn_wr and romp_cs,
+	address_a => dn_addr(14 downto 0),
+	data_a    => dn_data,
+
+	clock_b   => clock_6n,
+	address_b => cpu_addr(14 downto 0),
+	q_b       => cpu_rom_do
 );
 
 -- working/char RAM   0x8000-0x8FFF
@@ -742,22 +760,33 @@ port map(
 );
 
 -- char graphics ROM G10
-char_graphics_1 : entity work.pooyan_char_grphx1
-port map(
- clk  => clock_6,
- addr => ch_graphx_addr,
- data => ch_graphx1_do
+char_graphics_1 : work.dpram generic map (12,8)
+port map
+(
+	clock_a   => clock_12,
+	wren_a    => dn_wr and romch1_cs,
+	address_a => dn_addr(11 downto 0),
+	data_a    => dn_data,
+
+	clock_b   => clock_6,
+	address_b => ch_graphx_addr,
+	q_b       => ch_graphx1_do
 );
 
 -- char graphics ROM G9
-char_graphics_2 : entity work.pooyan_char_grphx2
-port map(
- clk  => clock_6,
- addr => ch_graphx_addr,
- data => ch_graphx2_do
+char_graphics_2 : work.dpram generic map (12,8)
+port map
+(
+	clock_a   => clock_12,
+	wren_a    => dn_wr and romch2_cs,
+	address_a => dn_addr(11 downto 0),
+	data_a    => dn_data,
+
+	clock_b   => clock_6,
+	address_b => ch_graphx_addr,
+	q_b       => ch_graphx2_do
 );
 
--- char palette ROM
 ch_palette : entity work.pooyan_char_color_lut
 port map(
  clk  => clock_6,
@@ -766,22 +795,33 @@ port map(
 );
 
 -- sprite graphics ROM A9
-sp_graphics_1 : entity work.pooyan_sprite_grphx1
-port map(
- clk  => clock_6,
- addr => sp_graphx_addr,
- data => sp_graphx1_do
+sp_graphics_1 : work.dpram generic map (12,8)
+port map
+(
+	clock_a   => clock_12,
+	wren_a    => dn_wr and romsp1_cs,
+	address_a => dn_addr(11 downto 0),
+	data_a    => dn_data,
+
+	clock_b   => clock_6,
+	address_b => sp_graphx_addr,
+	q_b       => sp_graphx1_do
 );
 
 -- sprite graphics ROM A8
-sp_graphics_2 : entity work.pooyan_sprite_grphx2
-port map(
- clk  => clock_6,
- addr => sp_graphx_addr,
- data => sp_graphx2_do
+sp_graphics_2 : work.dpram generic map (12,8)
+port map
+(
+	clock_a   => clock_12,
+	wren_a    => dn_wr and romsp2_cs,
+	address_a => dn_addr(11 downto 0),
+	data_a    => dn_data,
+
+	clock_b   => clock_6,
+	address_b => sp_graphx_addr,
+	q_b       => sp_graphx2_do
 );
 
--- sprite palette ROM
 sp_palette : entity work.pooyan_sprite_color_lut
 port map(
  clk  => clock_6,
@@ -789,7 +829,6 @@ port map(
  data => sp_palette_do
 );
 
--- rgb palette ROM 
 rgb_palette_gb : entity work.pooyan_palette
 port map(
  clk  => clock_6,
@@ -801,6 +840,7 @@ port map(
 -- sound board
 pooyan_sound_board : entity work.pooyan_sound_board
 port map(
+ clock_12     => clock_12,
  clock_14     => clock_14,
  reset        => reset,
 
@@ -809,6 +849,10 @@ port map(
  
  audio_out    => audio_out,
  
+ dn_addr      => dn_addr,
+ dn_data      => dn_data,
+ dn_wr        => dn_wr,
+
  dbg_cpu_addr => open
  );
 
