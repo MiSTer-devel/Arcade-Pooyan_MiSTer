@@ -97,6 +97,8 @@ port(
  start1         : in std_logic;
  coin1          : in std_logic;
  
+ service			 : in std_logic;
+ 
  fire1          : in std_logic;
  right1         : in std_logic;
  left1          : in std_logic;
@@ -295,7 +297,7 @@ end process;
 cpu_ena  <= not pxcnt(0);
 
 -- inputs
-input_0       <= "111" & not start2 & not start1 & '1'     & '1'        & not coin1; --   ?/  ?/  ?/ 2S/ 1S/SVC/ C2/ C1
+input_0       <= "111" & not start2 & not start1 &  '1' & '1'            & not coin1; --   ?/  ?/  ?/ 2S/ 1S/SVC/ C2/ C1
 input_1       <= "111" & not fire1  & not down1  & not up1 & not right1 & not left1; --   ?/1FL/1SR/1SL/1DW/1UP/1RI/1LE
 input_2       <= "111" & not fire2  & not down2  & not up2 & not right2 & not left2; --   ?/2FL/2SR/2SL/2DW/2UP/2RI/2LE
 
