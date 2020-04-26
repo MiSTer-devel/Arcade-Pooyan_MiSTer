@@ -1,16 +1,22 @@
 ---------------------------------------------------------------------------------
 -- Time pilot by Dar (darfpga@aol.fr) (29/10/2017)
 -- http://darfpga.blogspot.fr
+--
+-- release rev 02 - (26/04/2020)
+--   replace T80 version 247 by version 350: solve arrows collision error
+--   fix line count and vblank
+--
 ---------------------------------------------------------------------------------
 -- gen_ram.vhd & io_ps2_keyboard
 -------------------------------- 
 -- Copyright 2005-2008 by Peter Wendrich (pwsoft@syntiac.com)
 -- http://www.syntiac.com/fpga64.html
 ---------------------------------------------------------------------------------
--- T80/T80se - Version : 0247
+-- T80/T80se - Version : 350
 -----------------------------
 -- Z80 compatible microprocessor core
 -- Copyright (c) 2001-2002 Daniel Wallner (jesus@opencores.org)
+-- Version 350 Copyright (c) 2018 Sorgelig
 ---------------------------------------------------------------------------------
 -- YM2149 (AY-3-8910)
 -- Copyright (c) MikeJ - Jan 2005
@@ -257,6 +263,8 @@ end process;
 --
 --  hcnt [0..47] => 48 x 8 = 384 pixels,  384/6.144Mhz => 1 line is 62.5us (16.000KHz)
 --  vcnt [252..255,256..511] => 260 lines, 1 frame is 260 x 62.5us = 16.250ms (61.54Hz)
+-- or
+--  vcnt [249..255,256..511] => 263 lines, 1 frame is 260 x 62.5us = 16.4375ms (60.8365Hz)
 
 process (reset, clock_6)
 begin
@@ -274,7 +282,8 @@ begin
 				if hcnt = "101111" then -- char from #0 to #47 (one line)
 					hcnt <= "000000";
 					if vcnt = '1'&X"FF" then
-						vcnt <= '0'&X"FC";
+--						vcnt <= '0'&X"FC";    -- 252
+						vcnt <= '0'&X"F9";    -- 249
 					else
 						vcnt <= vcnt + '1';
 					end if;
@@ -631,7 +640,7 @@ begin
 		end if;
 
 		if hcnt = hcnt_base then 
-			if vcnt = 500 then
+			if vcnt = 507 then
 				vsync_cnt := X"0";
 			else
 				if vsync_cnt < X"F" then vsync_cnt := vsync_cnt + '1'; end if;
@@ -640,10 +649,10 @@ begin
 
 		if hcnt = hcnt_base-4 then
 			hblank <= '1';
-			if vcnt = 496 then
-				vblank <= '1';   -- 492 ok
-			elsif vcnt = 270 then
-				vblank <= '0';   -- 262 ok 
+			if vcnt = 495 then
+				vblank <= '1'; 
+			elsif vcnt = 271 then
+				vblank <= '0'; 
 			end if;
 		elsif hcnt = 0 then
 			hblank <= '0';
@@ -663,12 +672,12 @@ end process;
 ------------------------------
 
 -- microprocessor Z80
-cpu : entity work.T80se
+cpu : entity work.T80s
 generic map(Mode => 0, T2Write => 1, IOWait => 1)
 port map(
   RESET_n => reset_n,
-  CLK_n   => clock_6,
-  CLKEN   => cpu_ena,
+  CLK     => clock_6,
+  CEN     => cpu_ena,
   WAIT_n  => '1',
   INT_n   => '1', --cpu_irq_n,
   NMI_n   => cpu_nmi_n,
