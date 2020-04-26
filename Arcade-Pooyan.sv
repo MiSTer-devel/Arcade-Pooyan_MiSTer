@@ -264,7 +264,7 @@ always @(posedge clk_48) begin
 end
 
 
-arcade_video #(256,226,8) arcade_video
+arcade_video #(256,224,8) arcade_video
 (
         .*,
 

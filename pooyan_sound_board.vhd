@@ -7,10 +7,11 @@
 -- Copyright 2005-2008 by Peter Wendrich (pwsoft@syntiac.com)
 -- http://www.syntiac.com/fpga64.html
 ---------------------------------------------------------------------------------
--- T80/T80se - Version : 0247
+-- T80/T80se - Version : 350
 -----------------------------
 -- Z80 compatible microprocessor core
 -- Copyright (c) 2001-2002 Daniel Wallner (jesus@opencores.org)
+-- Version 350 Copyright (c) 2018 Sorgelig
 ---------------------------------------------------------------------------------
 -- YM2149 (AY-3-8910)
 -- Copyright (c) MikeJ - Jan 2005
@@ -323,12 +324,12 @@ begin
 end process;
 
 -- microprocessor Z80
-cpu : entity work.T80se
+cpu : entity work.T80s
 generic map(Mode => 0, T2Write => 1, IOWait => 1)
 port map(
   RESET_n => reset_n,
-  CLK_n   => cpu_clock,
-  CLKEN   => '1',
+  CLK     => cpu_clock,
+  CEN     => '1',
   WAIT_n  => '1',
   INT_n   => cpu_irq_n,
   NMI_n   => '1',
