@@ -1,23 +1,24 @@
 <misterromdescription>
 	<name>Pooyan</name>
-	<mameversion>0216</mameversion>
-	<mratimestamp>201911270000</mratimestamp>
+	<mameversion>0220</mameversion>
+	<setname>pooyan</setname>
+	<mratimestamp>20200427161917</mratimestamp>
 	<year>1982</year>
 	<manufacturer>Konami</manufacturer>
 	<category>Maze / Balloons</category>
 	<category>Maze / Pigs</category>
 	<category>Sports / Shooting</category>
 	<rbf>pooyan</rbf>
-	<rom index="0" zip="pooyan.zip" md5="de106fd90992460848b7856876a4e330" type="merged|nonmerged">
-		<part name="1.4a"/>
-		<part name="2.5a"/>
-		<part name="3.6a"/>
-		<part name="4.7a"/>
-		<part name="8.10g"/>
-		<part name="7.9g"/>
-		<part name="6.9a"/>
-		<part name="5.8a"/>
-		<part name="xx.7a"/>
-		<part name="xx.8a"/>
+	<rom index="0" zip="pooyan.zip" md5="de106fd90992460848b7856876a4e330">
+		<part crc="bb319c63" name="1.4a"/>
+		<part crc="a1463d98" name="2.5a"/>
+		<part crc="fe1a9e08" name="3.6a"/>
+		<part crc="9e0f9bcc" name="4.7a"/>
+		<part crc="931b29eb" name="8.10g"/>
+		<part crc="bbe6d6e4" name="7.9g"/>
+		<part crc="b2d8c121" name="6.9a"/>
+		<part crc="1097c2b6" name="5.8a"/>
+		<part crc="fbe2b368" name="xx.7a"/>
+		<part crc="e1795b3d" name="xx.8a"/>
 	</rom>
 </misterromdescription>
