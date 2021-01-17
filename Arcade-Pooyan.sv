@@ -265,11 +265,16 @@ assign AUDIO_L = {audio, 5'b00000};
 assign AUDIO_R = AUDIO_L;
 assign AUDIO_S = 0;
 
+
+reg reset = 0;
+always @(posedge clk_sys)
+	reset <= RESET | status[0] | buttons[1];
+
 pooyan pooyan
 (
 	.clock_12(clk_sys),
 	.clock_14(clk_snd),
-	.reset(RESET | status[0] | buttons[1]),
+	.reset(reset),
 
 	.dn_addr(ioctl_addr[15:0]),
 	.dn_data(ioctl_dout),
