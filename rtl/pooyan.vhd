@@ -117,8 +117,16 @@ port(
  down2          : in std_logic;
  up2            : in std_logic;
  
- sw           : in std_logic_vector(4 downto 0);
- dbg_cpu_addr : out std_logic_vector(15 downto 0)
+ sw             : in std_logic_vector(4 downto 0);
+ dbg_cpu_addr   : out std_logic_vector(15 downto 0);
+
+ pause          : in std_logic;
+
+ -- HISCORE
+ hs_address     : in  std_logic_vector(15 downto 0);
+ hs_data_out    : out std_logic_vector(7 downto 0);
+ hs_data_in     : in  std_logic_vector(7 downto 0);
+ hs_write       : in  std_logic
  );
 end pooyan;
 
@@ -678,7 +686,7 @@ port map(
   RESET_n => reset_n,
   CLK     => clock_6,
   CEN     => cpu_ena,
-  WAIT_n  => '1',
+  WAIT_n  => not pause,
   INT_n   => '1', --cpu_irq_n,
   NMI_n   => cpu_nmi_n,
   BUSRQ_n => '1',
@@ -716,14 +724,20 @@ port map
 );
 
 -- working/char RAM   0x8000-0x8FFF
-wram : entity work.gen_ram
-generic map( dWidth => 8, aWidth => 12)
+wram : entity work.dpram
+generic map( data_width_g => 8, addr_width_g => 12)
 port map(
- clk  => clock_6n,
- we   => wram_we,
- addr => wram_addr,
- d    => cpu_do,
- q    => wram_do
+ clock_a   => clock_6n,
+ wren_a    => wram_we,
+ address_a => wram_addr,
+ data_a    => cpu_do,
+ q_a       => wram_do,
+ 
+ clock_b   => clock_12,
+ wren_b    => hs_write,
+ address_b => hs_address(11 downto 0),
+ data_b    => hs_data_in,
+ q_b       => hs_data_out
 );
 
 -- sprite RAM1    0x9000-0x90FF

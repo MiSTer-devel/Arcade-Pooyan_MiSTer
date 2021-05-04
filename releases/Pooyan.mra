@@ -21,4 +21,14 @@
 		<part crc="fbe2b368" name="xx.7a"/>
 		<part crc="e1795b3d" name="xx.8a"/>
 	</rom>
+	<rom index="3" md5="none">
+		<part>
+		00 00 00 00 00 FF 00 02 00 02 00 01 00 FF 00 00
+		00 00 89 C0 00 1E 00 00
+		00 00 8A 00 00 1E 00 01
+		00 00 8E 00 00 1E 00 00
+		00 00 88 A8 00 03 00 01
+		</part>
+	</rom>
+	<nvram index="4" size="93"/>
 </misterromdescription>
