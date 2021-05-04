@@ -118,7 +118,6 @@ port(
  up2            : in std_logic;
  
  sw             : in std_logic_vector(4 downto 0);
- dbg_cpu_addr   : out std_logic_vector(15 downto 0);
 
  pause          : in std_logic;
 
@@ -237,16 +236,8 @@ clock_12n <= not clock_12;
 clock_6n  <= not clock_6;
 reset_n   <= not reset;
 
--- debug 
-process (reset, clock_12)
-begin
- if rising_edge(clock_12) and cpu_ena ='1' and cpu_mreq_n ='0' then
-   dbg_cpu_addr <= cpu_addr;
- end if;
-end process;
-
 -- make 6MHz clock from 12MHz
-process (clock_12)
+process (clock_12, reset)
 begin
 	if reset='1' then
 		clock_6  <= '0';
@@ -876,9 +867,7 @@ port map(
  
  dn_addr      => dn_addr,
  dn_data      => dn_data,
- dn_wr        => dn_wr,
-
- dbg_cpu_addr => open
+ dn_wr        => dn_wr
  );
 
 end struct;
