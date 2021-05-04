@@ -117,8 +117,15 @@ port(
  down2          : in std_logic;
  up2            : in std_logic;
  
- sw           : in std_logic_vector(4 downto 0);
- dbg_cpu_addr : out std_logic_vector(15 downto 0)
+ sw             : in std_logic_vector(4 downto 0);
+
+ pause          : in std_logic;
+
+ -- HISCORE
+ hs_address     : in  std_logic_vector(15 downto 0);
+ hs_data_out    : out std_logic_vector(7 downto 0);
+ hs_data_in     : in  std_logic_vector(7 downto 0);
+ hs_write       : in  std_logic
  );
 end pooyan;
 
@@ -229,16 +236,8 @@ clock_12n <= not clock_12;
 clock_6n  <= not clock_6;
 reset_n   <= not reset;
 
--- debug 
-process (reset, clock_12)
-begin
- if rising_edge(clock_12) and cpu_ena ='1' and cpu_mreq_n ='0' then
-   dbg_cpu_addr <= cpu_addr;
- end if;
-end process;
-
 -- make 6MHz clock from 12MHz
-process (clock_12)
+process (clock_12, reset)
 begin
 	if reset='1' then
 		clock_6  <= '0';
@@ -678,7 +677,7 @@ port map(
   RESET_n => reset_n,
   CLK     => clock_6,
   CEN     => cpu_ena,
-  WAIT_n  => '1',
+  WAIT_n  => not pause,
   INT_n   => '1', --cpu_irq_n,
   NMI_n   => cpu_nmi_n,
   BUSRQ_n => '1',
@@ -716,14 +715,20 @@ port map
 );
 
 -- working/char RAM   0x8000-0x8FFF
-wram : entity work.gen_ram
-generic map( dWidth => 8, aWidth => 12)
+wram : entity work.dpram
+generic map( data_width_g => 8, addr_width_g => 12)
 port map(
- clk  => clock_6n,
- we   => wram_we,
- addr => wram_addr,
- d    => cpu_do,
- q    => wram_do
+ clock_a   => clock_6n,
+ wren_a    => wram_we,
+ address_a => wram_addr,
+ data_a    => cpu_do,
+ q_a       => wram_do,
+ 
+ clock_b   => clock_12,
+ wren_b    => hs_write,
+ address_b => hs_address(11 downto 0),
+ data_b    => hs_data_in,
+ q_b       => hs_data_out
 );
 
 -- sprite RAM1    0x9000-0x90FF
@@ -862,9 +867,7 @@ port map(
  
  dn_addr      => dn_addr,
  dn_data      => dn_data,
- dn_wr        => dn_wr,
-
- dbg_cpu_addr => open
+ dn_wr        => dn_wr
  );
 
 end struct;

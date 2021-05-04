@@ -40,9 +40,8 @@ port(
  
  dn_addr        : in  std_logic_vector(15 downto 0);
  dn_data        : in  std_logic_vector(7 downto 0);
- dn_wr          : in  std_logic;
+ dn_wr          : in  std_logic
 
- dbg_cpu_addr : out std_logic_vector(15 downto 0)
  );
 end pooyan_sound_board;
 
@@ -124,14 +123,6 @@ begin
 
 clock_14n <= not clock_14;
 reset_n   <= not reset;
-
--- debug 
-process (reset, clock_14)
-begin
- if rising_edge(clock_14) and cpu_mreq_n ='0' then
-   dbg_cpu_addr <= cpu_addr;
- end if;
-end process;
 
 --------------------------------------------------------
 -- RC filters equation
@@ -223,10 +214,9 @@ begin
 	end if;
 end process;
 
-			
 -- divide clocks 
 -- random generator ?
-process (clock_14)
+process (clock_14, reset)
 begin
 	if reset='1' then
 		clock_div1 <= (others =>'0');
@@ -242,10 +232,10 @@ begin
 				else
 					biquinary_div(3 downto 1) <= biquinary_div(3 downto 1) + '1';
 				end if;
-			end if;			
+			end if;
 		
 		end if;
-	end if;   		
+	end if;
 end process;
 
 -- make clocks for cpu and sound generators
