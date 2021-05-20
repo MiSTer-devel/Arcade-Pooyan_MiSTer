@@ -113,6 +113,7 @@ localparam CONF_STR = {
 	"R0,Reset;",
 	"J1,Fire,Start 1P,Start 2P,Coin;",
 	"jn,A,Start,Select,R;",
+	"jp,B,Start,,Select;",
 	"V,v",`BUILD_DATE
 };
 // Sound(8)/Difficulty(7-5)/Bonus(4)/Cocktail(3)/lives(2-1)
