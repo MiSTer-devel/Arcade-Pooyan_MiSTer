@@ -52,8 +52,6 @@
 	</rom>
 	<nvram index="4" size="93"/>
 
-	<nvram></nvram>
-
 	<remark></remark>
 
 	<mratimestamp>20210430005030</mratimestamp>
