@@ -207,6 +207,7 @@ localparam CONF_STR = {
 	"A.POOYAN;;",
 	"H0OJK,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
 	"H0O2,Orientation,Vert,Horz;",
+	"O6,Flip,Off,On;",
 	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
 	"-;",
 	"O89,Lives,3,4,5,255(Cheat);",
@@ -418,6 +419,7 @@ pooyan pooyan
 	.sw(0),
 	
 	.pause(pause_cpu),
+	.vertical_flip(status[6]),
 	
 	.hs_address(hs_address),
 	.hs_data_out(hs_data_out),

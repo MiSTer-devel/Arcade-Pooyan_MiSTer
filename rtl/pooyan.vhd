@@ -120,6 +120,7 @@ port(
  sw             : in std_logic_vector(4 downto 0);
 
  pause          : in std_logic;
+ vertical_flip  : in std_logic;
 
  -- HISCORE
  hs_address     : in  std_logic_vector(15 downto 0);
@@ -189,6 +190,7 @@ architecture struct of pooyan is
  signal sp_line      : std_logic_vector(7 downto 0);
  signal sp_on_line   : std_logic;
  signal sp_attr      : std_logic_vector(7 downto 0);
+ signal sp_attr_eff  : std_logic_vector(1 downto 0);
  signal sp_posh      : std_logic_vector(7 downto 0);
  signal sp_pixels    : std_logic_vector(15 downto 0);
  signal sp_color_set    : std_logic_vector(3 downto 0);
@@ -217,6 +219,7 @@ architecture struct of pooyan is
  signal sp_buffer_sel : std_logic;
  
  signal itt_n      : std_logic;
+ signal hw_flip    : std_logic := '0';
  signal flip       : std_logic;
  signal A10x_we    : std_logic;
  signal A18x_we    : std_logic;
@@ -230,6 +233,10 @@ architecture struct of pooyan is
  signal romp_cs,romsp1_cs,romsp2_cs,romch1_cs,romch2_cs : std_logic;
 
 begin
+
+flip <= hw_flip xor vertical_flip;
+sp_attr_eff(1) <= sp_attr(7) xor flip;
+sp_attr_eff(0) <= sp_attr(6) xor flip;
 
 video_clk <= clock_6n;
 clock_12n <= not clock_12;
@@ -361,7 +368,7 @@ begin
 
    	if A18x_we = '1' then
 			if cpu_addr(2 downto 0) = "000" then itt_n <= cpu_do(0); end if;
-			if cpu_addr(2 downto 0) = "111" then flip  <= not cpu_do(0); end if;
+			if cpu_addr(2 downto 0) = "111" then hw_flip <= not cpu_do(0); end if;
 			if cpu_addr(2 downto 0) = "001" then sound_trig <= cpu_do(0); end if;
 		end if;
 		
@@ -411,16 +418,13 @@ begin
 	end if;
 end process;	
 
--- sp_line (valid only when pxcnt = "011")
-sp_line <= not(vcnt_r(7 downto 0)) - spram2_do;
+sp_line <= not(vcnt_r(7 downto 0)) - spram2_do when flip = '0' else (spram2_do + X"0F") - vcnt_r(7 downto 0);	--Sal: Flip selects the correct sprite row in normal mode or mirrored mode, with a 16-pixel height correction when flipped
 
--- address sprite graphics rom with sprite code and tile number and sprite line counter
--- with respect to sprite flip x/y controls
-with sp_attr(7 downto 6) select
-	sp_graphx_addr <= spram1_do(5 downto 0) &     sp_line(3) &     hcnt(0) &     pxcnt(2) &     sp_line(2 downto 0) when "11",  
-							spram1_do(5 downto 0) &     sp_line(3) & not hcnt(0) & not pxcnt(2) &     sp_line(2 downto 0) when "10",  
-							spram1_do(5 downto 0) & not sp_line(3) &     hcnt(0) &     pxcnt(2) & not sp_line(2 downto 0) when "01",  
-							spram1_do(5 downto 0) & not sp_line(3) & not hcnt(0) & not pxcnt(2) & not sp_line(2 downto 0) when others;
+with sp_attr_eff select
+	sp_graphx_addr <= spram1_do(5 downto 0) &     sp_line(3) &     hcnt(0) &     pxcnt(2) &     sp_line(2 downto 0) when "11",
+	                  spram1_do(5 downto 0) &     sp_line(3) & not hcnt(0) & not pxcnt(2) &     sp_line(2 downto 0) when "10",
+	                  spram1_do(5 downto 0) & not sp_line(3) &     hcnt(0) &     pxcnt(2) & not sp_line(2 downto 0) when "01",
+	                  spram1_do(5 downto 0) & not sp_line(3) & not hcnt(0) & not pxcnt(2) & not sp_line(2 downto 0) when others;
 							
 -- latch and shift sprite graphics data with respect to flipx control
 -- 16bits => 4x4bits = 4pixels / 16colors (15colors + transparent)
@@ -430,7 +434,7 @@ begin
 	
 		if pxcnt(1 downto 0) = "00" then
 			if sp_on_line = '1' then
-				if sp_attr(6) = '1' then
+				if sp_attr_eff(0) = '1' then
 					sp_pixels <= sp_graphx1_do & sp_graphx2_do;
 				else
 					sp_pixels( 3 downto  0) <= sp_graphx2_do(0) & sp_graphx2_do(1) & sp_graphx2_do(2) & sp_graphx2_do(3);
@@ -460,7 +464,11 @@ process (clock_6)
 begin
 	if rising_edge(clock_6) then
 		if hcnt(0) = '0' and pxcnt = "101" then
-			sp_buffer_write_addr <= sp_posh;
+			if flip = '0' then
+				sp_buffer_write_addr <= sp_posh;
+			else
+				sp_buffer_write_addr <= (not sp_posh) - X"0F";
+			end if;
 		else
 			sp_buffer_write_addr <= sp_buffer_write_addr + '1';
 		end if;
